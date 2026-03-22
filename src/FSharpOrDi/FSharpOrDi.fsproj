@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="FSharpOrDi.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="TypeSignature.fs" />
+    <Compile Include="TypeDecomposition.fs" />
+    <Compile Include="ResolutionGraph.fs" />
+    <Compile Include="Formatting.fs" />
+    <Compile Include="AmbiguityDetection.fs" />
+    <Compile Include="Diagnostics.fs" />
+    <Compile Include="RuntimeInvocation.fs" />
+    <Compile Include="GrowthPlan.fs" />
+    <Compile Include="CycleDetection.fs" />
+    <Compile Include="FunctionGraph.fs" />
+    <Compile Include="FunctionRegistry.fs" />
+  </ItemGroup>
+
+</Project>

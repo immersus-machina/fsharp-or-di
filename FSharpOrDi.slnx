@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/FSharpOrDi/FSharpOrDi.fsproj" />
+  <Project Path="test/FSharpOrDi.Test/FSharpOrDi.Test.fsproj" />
+</Solution>
