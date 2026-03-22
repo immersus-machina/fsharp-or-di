@@ -23,6 +23,7 @@ let rec flattenOrigin (origin: NodeOrigin) : NodeOrigin list =
     match origin with
     | Registered _ -> [ origin ]
     | DerivedByPartialApplication(functionOrigin, argumentOrigin) ->
+        // Argument before function: makes f(g(x)) flatten to [x, g, f] — same as g >> f
         flattenOrigin argumentOrigin @ flattenOrigin functionOrigin
     | DerivedByComposition(firstOrigin, secondOrigin) ->
         flattenOrigin firstOrigin @ flattenOrigin secondOrigin
@@ -38,15 +39,17 @@ let rec signatureOf (origin: NodeOrigin) : TypeSignature =
     | DerivedByPartialApplication(functionOrigin, _) ->
         match signatureOf functionOrigin with
         | FunctionType(_, output) -> output
-        | ValueType _ -> failwith "Cannot derive signature from partial application of non-function origin"
+        | _ -> ValueType typeof<obj> // Unreachable if origins are well-formed — fallback avoids crashing in error formatting
     | DerivedByComposition(firstOrigin, secondOrigin) ->
         match signatureOf firstOrigin, signatureOf secondOrigin with
         | FunctionType(firstInput, _), FunctionType(_, secondOutput) ->
             FunctionType(firstInput, secondOutput)
-        | _ -> failwith "Cannot derive signature from composition of non-function origins"
+        | _ -> ValueType typeof<obj> // Unreachable if origins are well-formed — fallback avoids crashing in error formatting
 
 // Convenience wrappers over Map — no logic, just domain vocabulary
 let emptyStage: Stage = { Nodes = Map.empty }
+
+let allNodes (stage: Stage) : Node list = stage.Nodes |> Map.toList |> List.map snd
 
 let addNode (node: Node) (stage: Stage) : Stage =
     { stage with

@@ -22,6 +22,7 @@ let growFromRegistrations
                 |> deduplicateBatch
 
             if List.isEmpty acceptedNodes then
+                // Safe to return: current stage was validated at the start of this iteration
                 question.CurrentStage
             else
                 let nextStage =
@@ -30,5 +31,5 @@ let growFromRegistrations
 
                 growUntilStable { NewNodes = acceptedNodes; CurrentStage = nextStage }
 
-    let initialNodes = registrationStage.Nodes |> Map.toList |> List.map snd
+    let initialNodes = allNodes registrationStage
     growUntilStable { NewNodes = initialNodes; CurrentStage = registrationStage }

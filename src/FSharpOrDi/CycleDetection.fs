@@ -52,10 +52,10 @@ let private detectCycleInDirectedGraph
     |> Result.map ignore
 
 let detectCycles (formatSignature: TypeSignature -> string) (stage: Stage) : Result<unit, string> =
+    let nodes = allNodes stage
+
     let allTypeNodes =
-        stage.Nodes
-        |> Map.toList
-        |> List.map snd
+        nodes
         |> List.collect (fun node ->
             match node.Signature with
             | FunctionType(input, output) -> [ input; output ]
@@ -63,9 +63,7 @@ let detectCycles (formatSignature: TypeSignature -> string) (stage: Stage) : Res
         |> List.distinct
 
     let adjacency =
-        stage.Nodes
-        |> Map.toList
-        |> List.map snd
+        nodes
         |> List.fold
             (fun (accumulator: Map<TypeSignature, TypeSignature list>) node ->
                 match node.Signature with

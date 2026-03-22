@@ -27,7 +27,7 @@ let private tryPartiallyApply
 
 let partialApplicationGrowth (applyFunction: obj -> obj -> obj) : GrowthPlan =
     fun question ->
-        let allNodes = question.CurrentStage.Nodes |> Map.toList |> List.map snd
+        let allNodes = allNodes question.CurrentStage
 
         question.NewNodes
         |> List.collect (fun newNode ->
@@ -61,7 +61,7 @@ let compositionGrowth
     (reconstructType: TypeSignature -> System.Type)
     : GrowthPlan =
     fun question ->
-        let allNodes = question.CurrentStage.Nodes |> Map.toList |> List.map snd
+        let allNodes = allNodes question.CurrentStage
 
         question.NewNodes
         |> List.collect (fun newNode ->

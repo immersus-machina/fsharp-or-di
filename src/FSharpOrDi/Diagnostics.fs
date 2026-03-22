@@ -13,9 +13,7 @@ let rec private eventualReturnType (signature: TypeSignature) : TypeSignature =
     | ValueType _ -> signature
 
 let private findPotentialProducers (targetSignature: TypeSignature) (stage: Stage) : (Node * ProducerMatch) list =
-    stage.Nodes
-    |> Map.toList
-    |> List.map snd
+    allNodes stage
     |> List.choose (fun node ->
         match node.Signature with
         | FunctionType(_, output) when output = targetSignature ->
