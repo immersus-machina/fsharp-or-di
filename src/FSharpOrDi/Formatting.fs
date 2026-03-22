@@ -11,19 +11,19 @@ let rec formatSignature (signature: TypeSignature) : string =
         let outputString = formatSignature output
         sprintf "(%s -> %s)" inputString outputString
 
-let formatOriginShallow (formatOriginSignature: NodeOrigin -> string) (origin: NodeOrigin) : string =
+let formatOriginShallow (formatTypeOfOrigin: NodeOrigin -> string) (origin: NodeOrigin) : string =
     match origin with
-    | Registered _ -> sprintf "direct registration of %s" (formatOriginSignature origin)
+    | Registered _ -> sprintf "direct registration of %s" (formatTypeOfOrigin origin)
     | DerivedByPartialApplication(functionOrigin, argumentOrigin) ->
         sprintf
             "partial application of %s with %s"
-            (formatOriginSignature functionOrigin)
-            (formatOriginSignature argumentOrigin)
+            (formatTypeOfOrigin functionOrigin)
+            (formatTypeOfOrigin argumentOrigin)
     | DerivedByComposition(firstOrigin, secondOrigin) ->
         sprintf
             "composition of %s >> %s"
-            (formatOriginSignature firstOrigin)
-            (formatOriginSignature secondOrigin)
+            (formatTypeOfOrigin firstOrigin)
+            (formatTypeOfOrigin secondOrigin)
 
 let rec formatOriginDeep (formatSignature: TypeSignature -> string) (origin: NodeOrigin) : string =
     match origin with

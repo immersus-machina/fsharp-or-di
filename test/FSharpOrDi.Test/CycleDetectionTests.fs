@@ -5,7 +5,10 @@ open FSharpOrDi.TypeSignature
 open FSharpOrDi.ResolutionGraph
 open FSharpOrDi.CycleDetection
 
-let private mockFormatSignature (_: TypeSignature) = "MOCK"
+let rec private mockFormatSignature (signature: TypeSignature) =
+    match signature with
+    | ValueType systemType -> systemType.Name
+    | FunctionType(input, output) -> sprintf "(%s -> %s)" (mockFormatSignature input) (mockFormatSignature output)
 
 let private makeNode (signature: TypeSignature) (origin: NodeOrigin) : Node =
     {

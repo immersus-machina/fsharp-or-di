@@ -52,8 +52,11 @@ let emptyStage: Stage = { Nodes = Map.empty }
 let allNodes (stage: Stage) : Node list = stage.Nodes |> Map.toList |> List.map snd
 
 let addNode (node: Node) (stage: Stage) : Stage =
-    { stage with
-        Nodes = Map.add node.Signature node stage.Nodes
-    }
+    if Map.containsKey node.Signature stage.Nodes then
+        failwithf "addNode: node with signature already exists (bug in filtering pipeline)"
+    else
+        { stage with
+            Nodes = Map.add node.Signature node stage.Nodes
+        }
 
 let tryFindNode (signature: TypeSignature) (stage: Stage) : Node option = Map.tryFind signature stage.Nodes

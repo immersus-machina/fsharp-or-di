@@ -94,7 +94,7 @@ Neither option felt satisfying. A functional language should have a functional a
 
 ### The observation
 
-In F#, when functions return **distinct types**, their signatures alone identify them. A function `float -> float -> AdditionResult` can only be one thing. A registry can use this to resolve dependencies automatically — no names, no interfaces, just well-engineered signatures.
+In F#, when functions use **distinct types**, their signatures become unambiguous identifiers. A well-engineered `Addend -> Addend -> Sum` can only mean one thing. A registry can use this to resolve dependencies automatically — no names, no interfaces, just signatures.
 
 Scala has had this at the language level since 2004 (`implicit`, later refined to `given`/`using` in Scala 3). The compiler searches scope for values matching required types and injects them. It's compile-time, zero-cost, and central to how Scala code is written.
 
@@ -136,3 +136,4 @@ The graph either resolves cleanly or tells you exactly what's wrong. No silent f
 - **Reflection-based** startup cost. The graph is built using .NET reflection. Once resolved, the returned function runs at full speed — no reflection on the hot path.
 - **IDE support matches the usage pattern.** Direct registrations have full "go to definition" support — same as C# interfaces. Synthesized functions (derived via partial application or composition chaining) don't have a declaration site to navigate to. Scala doesn't synthesize functions either — its `given`/`using` only resolves explicitly declared instances.
 - **Type aliases are documentation, not enforcement.** `type Refract = Specimen -> RefractedSpecimen` is a naming convenience — at the .NET level, it's the same type as any other `Specimen -> RefractedSpecimen`. The compiler won't catch a mislabeled alias.
+- **No generic type support.** The library resolves by exact type match. You can't register a generic function and have it resolve for specific type instantiations.
