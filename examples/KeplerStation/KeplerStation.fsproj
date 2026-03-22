@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Types.fs" />
+    <Compile Include="EnergyGrid.fs" />
+    <Compile Include="QuantumPipeline.fs" />
+    <Compile Include="Sensors.fs" />
+    <Compile Include="Threats.fs" />
+    <Compile Include="Emergency.fs" />
+    <Compile Include="Shields.fs" />
+    <Compile Include="Propulsion.fs" />
+    <Compile Include="LifeSupport.fs" />
+    <Compile Include="Containment.fs" />
+    <Compile Include="CrewSafety.fs" />
+    <Compile Include="Logging.fs" />
+    <Compile Include="Response.fs" />
+    <Compile Include="Command.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/FSharpOrDi/FSharpOrDi.fsproj" />
+  </ItemGroup>
+</Project>
