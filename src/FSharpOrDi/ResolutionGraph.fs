@@ -23,7 +23,7 @@ let rec flattenOrigin (origin: NodeOrigin) : NodeOrigin list =
     match origin with
     | Registered _ -> [ origin ]
     | DerivedByPartialApplication(functionOrigin, argumentOrigin) ->
-        // Argument before function: makes f(g(x)) flatten to [x, g, f] — same as g >> f
+        // Argument before function: makes f(x) flatten to [x, f] — same order as x >> f
         flattenOrigin argumentOrigin @ flattenOrigin functionOrigin
     | DerivedByComposition(firstOrigin, secondOrigin) ->
         flattenOrigin firstOrigin @ flattenOrigin secondOrigin

@@ -93,7 +93,6 @@ module RiskScorer =
 
 module ThreatAssessment =
     let assess
-        (sensors: DiagnosticEvent -> SensorArrayResult)
         (classifier: DiagnosticEvent -> ThreatClassifierResult)
         (emergencyThreat: DiagnosticEvent -> EmergencyThreatResult)
         (riskScorer: DiagnosticEvent -> RiskScorerResult)

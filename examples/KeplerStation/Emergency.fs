@@ -5,10 +5,11 @@ module BlindTrajectoryPlotter =
         (sensors: DiagnosticEvent -> SensorArrayResult)
         (event: DiagnosticEvent)
         : BlindTrajectoryResult =
-        let _ = sensors event
+        let s = sensors event
+        let eta = if s.ProximityAlert then Seconds 300.0 else Seconds 600.0
 
         { AssumedImpactProbability = Percentage 95.0
-          WorstCaseEta = Seconds 600.0 }
+          WorstCaseEta = eta }
 
 module EmergencyThreatClassifier =
     let classify
@@ -25,6 +26,7 @@ module ManualDeflectorGrid =
         (node: DiagnosticEvent -> GridNodeResult)
         (event: DiagnosticEvent)
         : ManualDeflectorResult =
-        let _ = node event
+        let n = node event
+        let baseCoverage = match n.Status with Online -> 60.0 | Degraded -> 45.0 | Offline -> 30.0
 
-        { FixedCoverage = Percentage 60.0 }
+        { FixedCoverage = Percentage baseCoverage }

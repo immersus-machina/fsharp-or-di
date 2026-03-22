@@ -1,6 +1,6 @@
 # fsharp-or-di
 
-The name is OR - the concept is AND - functional DI for F# in 500 lines. Now even hardcore F#-or-die people can get their DI.
+The name is OR - the concept is AND - functional DI for F# in ~500 lines of code. Now even hardcore F#-or-die people can get their DI.
 
 ## Installation
 
@@ -134,5 +134,5 @@ The graph either resolves cleanly or tells you exactly what's wrong. No silent f
 
 - **Runtime resolution**, not compile-time. Unlike Scala's `given`/`using`, errors are caught at startup, not at build time.
 - **Reflection-based** startup cost. The graph is built using .NET reflection. Once resolved, the returned function runs at full speed — no reflection on the hot path.
-- **IDE support matches the usage pattern.** Direct registrations have full "go to definition" support — same as C# interfaces. Synthesized functions (derived via partial application or composition chaining) don't have a declaration site to navigate to. Scala doesn't support synthesis either — this is beyond what any current language offers.
+- **IDE support matches the usage pattern.** Direct registrations have full "go to definition" support — same as C# interfaces. Synthesized functions (derived via partial application or composition chaining) don't have a declaration site to navigate to. Scala doesn't synthesize functions either — its `given`/`using` only resolves explicitly declared instances.
 - **Type aliases are documentation, not enforcement.** `type Refract = Specimen -> RefractedSpecimen` is a naming convenience — at the .NET level, it's the same type as any other `Specimen -> RefractedSpecimen`. The compiler won't catch a mislabeled alias.
