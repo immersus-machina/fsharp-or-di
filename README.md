@@ -83,6 +83,8 @@ No manual `>>` composition needed. Register the building blocks, request the res
 
 - **[KeplerStation](examples/KeplerStation/)** — 66 registered functions, partial application and composition chaining working together. A realistic-scale example.
 
+- **[ErrorMessages](examples/ErrorMessages/)** — What happens when things go wrong. Duplicate registrations, missing dependencies, ambiguity, and cycles — each with the error message the library produces.
+
 ## Motivation
 
 Coming from C#, dependency injection is a given — you register services, the container wires them, and you don't think twice about it. Moving to F#, the story was surprisingly different:

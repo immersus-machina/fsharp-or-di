@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="examples/ErrorMessages/ErrorMessages.fsproj" />
   <Project Path="examples/KeplerStation/KeplerStation.fsproj" />
   <Project Path="examples/OpticalContract/OpticalContract.fsproj" />
   <Project Path="src/FSharpOrDi/FSharpOrDi.fsproj" />

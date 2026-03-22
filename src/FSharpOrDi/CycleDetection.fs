@@ -18,10 +18,13 @@ let private detectCycleInDirectedGraph
     let rec visitNode (visitStates: Map<'a, VisitState>) (path: 'a list) (node: 'a) =
         match Map.tryFind node visitStates with
         | Some InProgress ->
-            let cyclePath =
-                node :: path |> List.rev |> List.map formatNodeLabel |> String.concat " -> "
+            let cycleSteps =
+                node :: path |> List.rev |> List.map formatNodeLabel
 
-            Error(sprintf "Cycle detected: %s" cyclePath)
+            let cyclePath =
+                cycleSteps |> List.map (sprintf "  %s") |> String.concat "\n    to\n"
+
+            Error(sprintf "Cycle detected:\n%s" cyclePath)
         | Some Visited -> Ok visitStates
         | Some Unvisited | None ->
             let visitStates = Map.add node InProgress visitStates
