@@ -9,12 +9,10 @@ TODO
 ## Quick Start
 
 ```fsharp
-// Three functions with well-engineered signatures
 let readTemperature: SensorId -> TemperatureReading = ...
 let readPressure: SensorId -> PressureReading = ...
 let combineSensors: (SensorId -> TemperatureReading) -> (SensorId -> PressureReading) -> SensorId -> CombinedReading = ...
 
-// Register, resolve — the library matches signatures automatically
 let registry =
     FunctionRegistry.empty
     |> FunctionRegistry.register readTemperature
