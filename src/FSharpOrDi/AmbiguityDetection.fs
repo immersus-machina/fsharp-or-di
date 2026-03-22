@@ -41,6 +41,7 @@ let deduplicateBatch
         match nodesWithSameSignature with
         | [ singleNode ] -> singleNode
         | firstNode :: _ ->
+            // Checking against firstNode is sufficient: doNodesConflict is based on an equivalence relation.
             let conflictingNode =
                 nodesWithSameSignature |> List.tryFind (fun node -> doNodesConflict firstNode node)
 

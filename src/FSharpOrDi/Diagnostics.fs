@@ -56,8 +56,10 @@ let describeMissingDependencies
                     | FunctionType(inputSignature, _) ->
                         match tryFindNode inputSignature stage with
                         | Some _ ->
+                            // This branch indicates a library bug — if the input is available and the
+                            // function is registered, the resolution engine should have produced the output.
                             [ producerLine
-                              sprintf "%s  But input %s is available (unexpected)" (indent depth) (formatSignature inputSignature) ]
+                              sprintf "%s  But input %s is available (unexpected — possible library bug)" (indent depth) (formatSignature inputSignature) ]
                         | None ->
                             [ producerLine
                               sprintf "%s  Missing: %s" (indent depth) (formatSignature inputSignature) ]

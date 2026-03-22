@@ -51,6 +51,7 @@ let private detectCycleInDirectedGraph
         (Ok(nodes |> List.map (fun node -> node, Unvisited) |> Map.ofList))
     |> Result.map ignore
 
+/// Rejects cyclic type graphs even if a specific request would resolve without traversing the cycle.
 let detectCycles (formatSignature: TypeSignature -> string) (stage: Stage) : Result<unit, string> =
     let nodes = allNodes stage
 

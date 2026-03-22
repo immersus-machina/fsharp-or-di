@@ -130,7 +130,7 @@ let ``describeMissingDependencies reports unexpected when producer input is avai
 
     // Assert
     Assert.Contains("Could be produced by: MOCK(A -> B)", result)
-    Assert.Contains("But input MOCK(A) is available (unexpected)", result)
+    Assert.Contains("But input MOCK(A) is available (unexpected — possible library bug)", result)
 
 [<Fact>]
 let ``describeMissingDependencies finds multi-arg function as eventual producer`` () =
