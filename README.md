@@ -4,6 +4,8 @@ The name is OR - the concept is AND - functional DI for F# in ~500 lines of code
 
 ## Installation
 
+Requires .NET 10+.
+
 ```bash
 dotnet add package FSharpOrDi
 ```
