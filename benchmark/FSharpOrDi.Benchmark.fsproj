@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../examples/KeplerStation/Types.fs" />
+    <Compile Include="../examples/KeplerStation/EnergyGrid.fs" />
+    <Compile Include="../examples/KeplerStation/QuantumPipeline.fs" />
+    <Compile Include="../examples/KeplerStation/Sensors.fs" />
+    <Compile Include="../examples/KeplerStation/Threats.fs" />
+    <Compile Include="../examples/KeplerStation/Emergency.fs" />
+    <Compile Include="../examples/KeplerStation/Shields.fs" />
+    <Compile Include="../examples/KeplerStation/Propulsion.fs" />
+    <Compile Include="../examples/KeplerStation/LifeSupport.fs" />
+    <Compile Include="../examples/KeplerStation/Containment.fs" />
+    <Compile Include="../examples/KeplerStation/CrewSafety.fs" />
+    <Compile Include="../examples/KeplerStation/Logging.fs" />
+    <Compile Include="../examples/KeplerStation/Response.fs" />
+    <Compile Include="../examples/KeplerStation/Command.fs" />
+    <Compile Include="Benchmarks.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\FSharpOrDi\FSharpOrDi.fsproj" />
+  </ItemGroup>
+
+</Project>

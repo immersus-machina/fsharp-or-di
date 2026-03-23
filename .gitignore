@@ -5,3 +5,6 @@ obj/
 *.user
 *.suo
 .fake
+
+# BenchmarkDotNet Artifacts
+BenchmarkDotNet.Artifacts/

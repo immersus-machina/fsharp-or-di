@@ -87,6 +87,18 @@ No manual `>>` composition needed. Register the building blocks, request the res
 
 - **[ErrorMessages](examples/ErrorMessages/)** — What happens when things go wrong. Duplicate registrations, missing dependencies, ambiguity, and cycles — each with the error message the library produces.
 
+## Performance
+
+Benchmarks on the [KeplerStation](examples/KeplerStation) example (66 registered functions, including composition chaining). Results will vary by machine.
+
+| Operation | Mean | Allocated |
+| --- | --- | --- |
+| Register 66 functions | 1.4 ms | 561 KB |
+| Resolve (build graph) | 12.7 ms | 13 MB |
+| Full pipeline (register + resolve + invoke) | 14.6 ms | 13.7 MB |
+
+Resolution is a startup cost — it happens once. The returned function runs at full speed with no reflection on the call path. See [benchmark/](benchmark/) to reproduce.
+
 ## Motivation
 
 Coming from C#, dependency injection is a given — you register services, the container wires them, and you don't think twice about it. Moving to F#, the story was surprisingly different:
