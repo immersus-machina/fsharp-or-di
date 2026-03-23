@@ -89,6 +89,8 @@ No manual `>>` composition needed. Register the building blocks, request the res
 
 - **[ErrorMessages](examples/ErrorMessages/)** — What happens when things go wrong. Duplicate registrations, missing dependencies, ambiguity, and cycles — each with the error message the library produces.
 
+- **[StreamScheme](https://github.com/immersus-machina/stream-scheme)** *(external)* — Shows the pattern of exposing injectable function signatures: `Contracts.fs` defines them, `Registration.fs` wires them into the registry. See [DI integration](https://github.com/immersus-machina/stream-scheme/tree/main/src/StreamScheme.FSharp/DI) and [consumer example](https://github.com/immersus-machina/stream-scheme/blob/main/examples/StreamScheme.FSharp.DIExample/Program.fs).
+
 ## Performance
 
 Benchmarks on the [KeplerStation](examples/KeplerStation) example (66 registered functions, including composition chaining). Results will vary by machine.
