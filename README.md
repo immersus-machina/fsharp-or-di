@@ -57,9 +57,9 @@ let readPressure: ReadPressure = fun id -> ...
 let combineSensors: ReadTemperature -> ReadPressure -> SensorId -> CombinedReading = fun temp press id -> ...
 
 FunctionRegistry.empty
-|> register readTemperature
-|> register readPressure
-|> register combineSensors
+    |> register readTemperature
+    |> register readPressure
+    |> register combineSensors
 ```
 
 The type alias is the interface. The function is the implementation. The parameters are the constructor.
@@ -69,10 +69,11 @@ The type alias is the interface. The function is the implementation. The paramet
 Single-argument functions compose automatically with `resolveComposed`:
 
 ```fsharp
-|> register QuantumSplitter.split           // RawQuantumEnergy -> SplitQuantumEnergy
-|> register CoherentExtractor.extract       // SplitQuantumEnergy -> CoherentEnergy
-|> register HarmonicTuner.tune              // CoherentEnergy -> HarmonizedEnergy
-|> register ShieldCalibrator.calibrate      // HarmonizedEnergy -> CalibratedShieldEnergy
+FunctionRegistry.empty
+    |> register QuantumSplitter.split           // RawQuantumEnergy -> SplitQuantumEnergy
+    |> register CoherentExtractor.extract       // SplitQuantumEnergy -> CoherentEnergy
+    |> register HarmonicTuner.tune              // CoherentEnergy -> HarmonizedEnergy
+    |> register ShieldCalibrator.calibrate      // HarmonizedEnergy -> CalibratedShieldEnergy
 
 // The library chains: split >> extract >> tune >> calibrate
 // Producing: RawQuantumEnergy -> CalibratedShieldEnergy
