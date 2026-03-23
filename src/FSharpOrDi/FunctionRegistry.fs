@@ -3,10 +3,10 @@ module FSharpOrDi.FunctionRegistry
 open Microsoft.FSharp.Reflection
 
 /// An immutable registry of functions and values for signature-based resolution.
-type FunctionRegistry = private FunctionRegistry of ResolutionGraph.Stage
+type Registry = private Registry of ResolutionGraph.Stage
 
 /// An empty function registry with no registrations.
-let empty: FunctionRegistry = FunctionRegistry ResolutionGraph.emptyStage
+let empty: Registry = Registry ResolutionGraph.emptyStage
 
 let private decomposeType =
     TypeDecomposition.decomposeType FSharpType.IsFunction FSharpType.GetFunctionElements
@@ -39,9 +39,9 @@ let private cycleDetector = CycleDetection.detectCycles Formatting.formatSignatu
 let private resolveWithGrowthPlans
     (growthPlans: GrowthPlan.GrowthPlan list)
     (targetSignature: TypeSignature.TypeSignature)
-    (registry: FunctionRegistry)
+    (registry: Registry)
     : obj =
-    let (FunctionRegistry stage) = registry
+    let (Registry stage) = registry
 
     let stableStage =
         FunctionGraph.growFromRegistrations
@@ -56,8 +56,8 @@ let private resolveWithGrowthPlans
     | None -> failwith (describeMissingDependencies targetSignature stableStage)
 
 /// Registers a function or value for signature-based resolution.
-let register (value: 'a) (registry: FunctionRegistry) : FunctionRegistry =
-    let (FunctionRegistry stage) = registry
+let register (value: 'a) (registry: Registry) : Registry =
+    let (Registry stage) = registry
     let boxedValue = box value
     let signature = decomposeType (boxedValue.GetType())
 
@@ -70,10 +70,10 @@ let register (value: 'a) (registry: FunctionRegistry) : FunctionRegistry =
             Origin = ResolutionGraph.Registered signature
         }
 
-    FunctionRegistry(ResolutionGraph.addNode node stage)
+    Registry(ResolutionGraph.addNode node stage)
 
 /// Resolves a function by System.Type using partial application.
-let resolveByType (targetType: System.Type) (registry: FunctionRegistry) : obj =
+let resolveByType (targetType: System.Type) (registry: Registry) : obj =
     let targetSignature = decomposeType targetType
 
     let growthPlans =
@@ -82,7 +82,7 @@ let resolveByType (targetType: System.Type) (registry: FunctionRegistry) : obj =
     resolveWithGrowthPlans growthPlans targetSignature registry
 
 /// Resolves a function by System.Type using partial application and composition chaining.
-let resolveComposedByType (targetType: System.Type) (registry: FunctionRegistry) : obj =
+let resolveComposedByType (targetType: System.Type) (registry: Registry) : obj =
     let targetSignature = decomposeType targetType
 
     let growthPlans =
@@ -94,9 +94,9 @@ let resolveComposedByType (targetType: System.Type) (registry: FunctionRegistry)
     resolveWithGrowthPlans growthPlans targetSignature registry
 
 /// Resolves a function by type parameter using partial application.
-let inline resolve<'a> (registry: FunctionRegistry) : 'a =
+let inline resolve<'a> (registry: Registry) : 'a =
     resolveByType typeof<'a> registry :?> 'a
 
 /// Resolves a function by type parameter using partial application and composition chaining.
-let inline resolveComposed<'a> (registry: FunctionRegistry) : 'a =
+let inline resolveComposed<'a> (registry: Registry) : 'a =
     resolveComposedByType typeof<'a> registry :?> 'a
