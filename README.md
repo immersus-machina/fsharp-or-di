@@ -118,7 +118,7 @@ In F#, when functions use **distinct types**, their signatures become unambiguou
 
 Scala has had this at the language level since 2004 (`implicit`, later refined to `given`/`using` in Scala 3). The compiler searches scope for values matching required types and injects them. It's compile-time, zero-cost, and central to how Scala code is written.
 
-F# has no equivalent. There's been an [open language suggestion](https://github.com/fsharp/fslang-suggestions/issues/243) for type classes / implicits since 2014 with 300+ upvotes — but it's never been implemented.
+F# has no equivalent. There's been an [open language suggestion](https://github.com/fsharp/fslang-suggestions/issues/243) for type classes / implicits since 2016 with 300+ upvotes — but it's never been implemented.
 
 ### The signature is the contract
 
