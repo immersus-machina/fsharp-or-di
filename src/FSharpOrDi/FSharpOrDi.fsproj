@@ -2,10 +2,35 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+
+    <PackageId>FSharpOrDi</PackageId>
+    <Authors>fsharp-or-di contributors</Authors>
+    <Description>Signature-based functional dependency injection for F#. Register functions, resolve by type signature — no interfaces, no containers, just functions.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/immersus-machina/fsharp-or-di</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/immersus-machina/fsharp-or-di.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fsharp;dependency-injection;di;functional;composition</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="FSharpOrDi.Test" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
