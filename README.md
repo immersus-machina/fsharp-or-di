@@ -82,27 +82,27 @@ let graph =
 let shieldEnergy: RawQuantumEnergy -> CalibratedShieldEnergy = resolve graph
 ```
 
-No manual `>>` composition needed. Register the building blocks, request the result type, the library figures out the chain. See the [KeplerStation](examples/KeplerStation/) example for a full-scale demonstration.
+No manual `>>` composition needed. Register the building blocks, request the result type, the library figures out the chain. See the [KeplerStation](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/KeplerStation/Program.fs) example for a full-scale demonstration.
 
 ## Examples
 
-- **[OpticalContract](examples/OpticalContract/)** — The simplest case. Three functions, one resolve. Each file includes C# interface comments showing the equivalent pattern. Start here if you're coming from C#.
+- **[OpticalContract](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/OpticalContract/Program.fs)** — The simplest case. Three functions, one resolve. Each file includes C# interface comments showing the equivalent pattern. Start here if you're coming from C#.
 
-- **[KeplerStation](examples/KeplerStation/)** — 66 registered functions, partial application and composition chaining working together. A realistic-scale example.
+- **[KeplerStation](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/KeplerStation/Program.fs)** — 66 registered functions, partial application and composition chaining working together. A realistic-scale example.
 
-- **[ErrorMessages](examples/ErrorMessages/)** — What happens when things go wrong. Duplicate registrations, missing dependencies, ambiguity, and cycles — each with the error message the library produces.
+- **[ErrorMessages](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/ErrorMessages/Program.fs)** — What happens when things go wrong. Duplicate registrations, missing dependencies, ambiguity, and cycles — each with the error message the library produces.
 
 - **[StreamScheme](https://github.com/immersus-machina/stream-scheme)** *(external)* — Shows the pattern of exposing injectable function signatures: `Contracts.fs` defines them, `Registration.fs` wires them into the registry. See [DI integration](https://github.com/immersus-machina/stream-scheme/tree/main/src/StreamScheme.FSharp/DI) and [consumer example](https://github.com/immersus-machina/stream-scheme/blob/main/examples/StreamScheme.FSharp.DIExample/Program.fs).
 
 ## Performance
 
-Benchmarks on the [KeplerStation](examples/KeplerStation) example (66 registered functions, including composition chaining). Results will vary by machine.
+Benchmarks on the [KeplerStation](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/KeplerStation/Program.fs) example (66 registered functions, including composition chaining). Results will vary by machine.
 
 | Operation | Mean | Allocated |
 | --- | --- | --- |
 | `buildComposed` (66 functions) | 14.7 ms | 13.7 MB |
 
-Building the graph is a startup cost — it happens once. `resolve` is a Map lookup. The resolved function is a standard F# function — no wrapping, no proxying, no reflection on the call path. See [benchmark/](benchmark/) to reproduce.
+Building the graph is a startup cost — it happens once. `resolve` is a Map lookup. The resolved function is a standard F# function — no wrapping, no proxying, no reflection on the call path. See [benchmark](https://github.com/immersus-machina/fsharp-or-di/blob/main/benchmark/Benchmarks.fs) to reproduce.
 
 ## Motivation
 
