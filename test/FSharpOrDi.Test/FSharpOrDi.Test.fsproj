@@ -15,9 +15,9 @@
     <Compile Include="DiagnosticsTests.fs" />
     <Compile Include="CycleDetectionTests.fs" />
     <Compile Include="GrowthPlanTests.fs" />
-    <Compile Include="FunctionGraphTests.fs" />
-    <Compile Include="ResolveIntegrationTests.fs" />
-    <Compile Include="ResolveComposedIntegrationTests.fs" />
+    <Compile Include="GraphGrowthTests.fs" />
+    <Compile Include="BuildAndResolveIntegrationTests.fs" />
+    <Compile Include="BuildComposedAndResolveIntegrationTests.fs" />
   </ItemGroup>
 
   <ItemGroup>

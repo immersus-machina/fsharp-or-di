@@ -1,13 +1,14 @@
 open OpticalContract
 open FSharpOrDi.FunctionRegistry
+open FSharpOrDi.FunctionGraph
 
-let registry =
-    empty
-    |> register Refraction.refract
-    |> register Illumination.illuminate
-    |> register Inspection.inspect
+let graph =
+    register Refraction.refract
+    >> register Illumination.illuminate
+    >> register Inspection.inspect
+    |> build
 
-let inspect: Specimen -> InspectionReport = resolve registry
+let inspect: Specimen -> InspectionReport = resolve graph
 
 let report =
     inspect

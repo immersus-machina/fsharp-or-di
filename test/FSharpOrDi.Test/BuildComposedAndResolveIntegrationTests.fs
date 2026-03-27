@@ -1,7 +1,8 @@
-module FSharpOrDi.Test.ResolveComposedIntegrationTests
+module FSharpOrDi.Test.BuildComposedAndResolveIntegrationTests
 
 open Xunit
 open FSharpOrDi.FunctionRegistry
+open FSharpOrDi.FunctionGraph
 
 type Volts = Volts of float
 type RawSignal = { Reading: Volts; Timestamp: int }
@@ -56,8 +57,10 @@ type FinalOutput = { Value: float }
 type DecodedSignal = { DecodedValue: float }
 type SignalReport = { Summary: string }
 
+// ── Build and resolve succeeds ──────────────────────────────────────
+
 [<Fact>]
-let ``resolveComposed chains two single-arg functions`` () =
+let ``two single-arg functions chain automatically`` () =
     // Arrange
     let filter: RawSignal -> FilteredSignal =
         fun raw ->
@@ -77,10 +80,10 @@ let ``resolveComposed chains two single-arg functions`` () =
                 WithinRange = v < 100.0
             }
 
-    let registry = empty |> register filter |> register normalize
+    let graph = register filter >> register normalize |> buildComposed
 
     // Act
-    let pipeline: RawSignal -> NormalizedSignal = resolveComposed registry
+    let pipeline: RawSignal -> NormalizedSignal = resolve graph
 
     // Assert
     let result = pipeline { Reading = Volts 50.0; Timestamp = 1 }
@@ -88,40 +91,7 @@ let ``resolveComposed chains two single-arg functions`` () =
     Assert.True(result.WithinRange)
 
 [<Fact>]
-let ``resolveComposed does not report ambiguity for associative composition`` () =
-    // Arrange
-    let stepOne: RawSignal -> FilteredSignal =
-        fun raw ->
-            let (Volts v) = raw.Reading
-
-            {
-                CleanedReading = Volts(v * 0.9)
-                NoiseRemoved = true
-            }
-
-    let stepTwo: FilteredSignal -> NormalizedSignal =
-        fun filtered ->
-            let (Volts v) = filtered.CleanedReading
-
-            {
-                NormalizedValue = v / 100.0
-                WithinRange = v < 100.0
-            }
-
-    let stepThree: NormalizedSignal -> SignalCategory =
-        fun normalized -> if normalized.NormalizedValue > 0.5 then Strong else Weak
-
-    let registry = empty |> register stepOne |> register stepTwo |> register stepThree
-
-    // Act
-    let pipeline: RawSignal -> SignalCategory = resolveComposed registry
-
-    // Assert
-    let result = pipeline { Reading = Volts 80.0; Timestamp = 1 }
-    Assert.Equal(Strong, result)
-
-[<Fact>]
-let ``resolveComposed chains three single-arg functions`` () =
+let ``three single-arg functions chain automatically`` () =
     // Arrange
     let filter: RawSignal -> FilteredSignal =
         fun raw ->
@@ -153,17 +123,50 @@ let ``resolveComposed chains three single-arg functions`` () =
                 Confidence = 0.95
             }
 
-    let registry = empty |> register filter |> register normalize |> register classify
+    let graph = register filter >> register normalize >> register classify |> buildComposed
 
     // Act
-    let pipeline: RawSignal -> ClassifiedSignal = resolveComposed registry
+    let pipeline: RawSignal -> ClassifiedSignal = resolve graph
 
     // Assert
     let result = pipeline { Reading = Volts 80.0; Timestamp = 1 }
     Assert.Equal(Strong, result.Category)
 
 [<Fact>]
-let ``resolveComposed chains to satisfy a dependency of a multi-arg function`` () =
+let ``associative composition does not report ambiguity`` () =
+    // Arrange
+    let stepOne: RawSignal -> FilteredSignal =
+        fun raw ->
+            let (Volts v) = raw.Reading
+
+            {
+                CleanedReading = Volts(v * 0.9)
+                NoiseRemoved = true
+            }
+
+    let stepTwo: FilteredSignal -> NormalizedSignal =
+        fun filtered ->
+            let (Volts v) = filtered.CleanedReading
+
+            {
+                NormalizedValue = v / 100.0
+                WithinRange = v < 100.0
+            }
+
+    let stepThree: NormalizedSignal -> SignalCategory =
+        fun normalized -> if normalized.NormalizedValue > 0.5 then Strong else Weak
+
+    let graph = register stepOne >> register stepTwo >> register stepThree |> buildComposed
+
+    // Act
+    let pipeline: RawSignal -> SignalCategory = resolve graph
+
+    // Assert
+    let result = pipeline { Reading = Volts 80.0; Timestamp = 1 }
+    Assert.Equal(Strong, result)
+
+[<Fact>]
+let ``chained result satisfies a dependency of a multi-arg function`` () =
     // Arrange
     let filter: RawSignal -> FilteredSignal =
         fun raw ->
@@ -192,17 +195,17 @@ let ``resolveComposed chains to satisfy a dependency of a multi-arg function`` (
                 Description = sprintf "Value=%.2f, in range=%b" n.NormalizedValue n.WithinRange
             }
 
-    let registry = empty |> register filter |> register normalize |> register assessRisk
+    let graph = register filter >> register normalize >> register assessRisk |> buildComposed
 
     // Act
-    let resolved: RawSignal -> RiskAssessment = resolveComposed registry
+    let resolved: RawSignal -> RiskAssessment = resolve graph
 
     // Assert
     Assert.Equal(Low, (resolved { Reading = Volts 50.0; Timestamp = 1 }).Level)
     Assert.Equal(High, (resolved { Reading = Volts 80.0; Timestamp = 1 }).Level)
 
 [<Fact>]
-let ``resolveComposed uses partially applied multi-arg function as a chain link`` () =
+let ``partially applied multi-arg function becomes a chain link`` () =
     // Arrange
     let filter: RawSignal -> FilteredSignal =
         fun raw ->
@@ -226,21 +229,21 @@ let ``resolveComposed uses partially applied multi-arg function as a chain link`
     let getCalibration: int -> CalibrationFactor =
         fun _ -> { Factor = 0.01; Offset = 0.05 }
 
-    let registry =
-        empty
-        |> register filter
-        |> register calibratedNormalize
-        |> register getCalibration
+    let graph =
+        register filter
+        >> register calibratedNormalize
+        >> register getCalibration
+        |> buildComposed
 
     // Act
-    let pipeline: RawSignal -> NormalizedSignal = resolveComposed registry
+    let pipeline: RawSignal -> NormalizedSignal = resolve graph
 
     // Assert
     let result = pipeline { Reading = Volts 50.0; Timestamp = 1 }
     Assert.Equal(0.5, result.NormalizedValue)
 
 [<Fact>]
-let ``resolveComposed does not report ambiguity when partial application and composition produce same result from same building blocks`` () =
+let ``partial application and composition from same building blocks do not conflict`` () =
     // Arrange
     let readTemperature: int -> Celsius = fun id -> Celsius(float id * 10.0)
 
@@ -255,21 +258,21 @@ let ``resolveComposed does not report ambiguity when partial application and com
             let (Celsius c) = reading.Temperature
             { Category = (if c > 50.0 then Strong else Weak); Confidence = 0.9 }
 
-    let registry =
-        empty
-        |> register readTemperature
-        |> register readAndCalibrate
-        |> register classifyFromReading
+    let graph =
+        register readTemperature
+        >> register readAndCalibrate
+        >> register classifyFromReading
+        |> buildComposed
 
     // Act
-    let resolved: int -> ClassifiedSignal = resolveComposed registry
+    let resolved: int -> ClassifiedSignal = resolve graph
 
     // Assert
     let result = resolved 5
     Assert.Equal(Strong, result.Category)
 
 [<Fact>]
-let ``resolveComposed resolves when curried function output feeds into higher-order function`` () =
+let ``curried function output feeds into higher-order function`` () =
     // Arrange
     let produceFunction: RawSignal -> FilteredSignal -> NormalizedSignal =
         fun raw ->
@@ -283,21 +286,27 @@ let ``resolveComposed resolves when curried function output feeds into higher-or
             let n = normalize { CleanedReading = Volts 50.0; NoiseRemoved = true }
             { Category = (if n.NormalizedValue > 0.5 then Strong else Weak); Confidence = 0.95 }
 
-    let registry =
-        empty
-        |> register produceFunction
-        |> register consumeFunction
+    let graph = register produceFunction >> register consumeFunction |> buildComposed
 
     // Act
-    let resolved: RawSignal -> ClassifiedSignal = resolveComposed registry
+    let resolved: RawSignal -> ClassifiedSignal = resolve graph
 
     // Assert
     let result = resolved { Reading = Volts 80.0; Timestamp = 1 }
     Assert.Equal(Strong, result.Category)
 
 [<Fact>]
-let ``resolveComposed fails when neither partial application nor chaining can produce the signature`` () =
+let ``registration order does not affect resolution`` () =
     // Arrange
+    let normalize: FilteredSignal -> NormalizedSignal =
+        fun filtered ->
+            let (Volts v) = filtered.CleanedReading
+
+            {
+                NormalizedValue = v / 100.0
+                WithinRange = v < 100.0
+            }
+
     let filter: RawSignal -> FilteredSignal =
         fun raw ->
             let (Volts v) = raw.Reading
@@ -307,17 +316,19 @@ let ``resolveComposed fails when neither partial application nor chaining can pr
                 NoiseRemoved = true
             }
 
-    let registry = empty |> register filter
+    let graph = register normalize >> register filter |> buildComposed
 
     // Act
-    let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> NormalizedSignal> registry |> ignore)
+    let pipeline: RawSignal -> NormalizedSignal = resolve graph
 
     // Assert
-    Assert.Contains("Cannot resolve", ex.Message)
+    let result = pipeline { Reading = Volts 50.0; Timestamp = 1 }
+    Assert.Equal(0.45, result.NormalizedValue)
+
+// ── Build fails ─────────────────────────────────────────────────────
 
 [<Fact>]
-let ``resolveComposed detects conflict when direct registration and chain both produce same signature`` () =
+let ``direct registration and chain to same signature fail at build time`` () =
     // Arrange
     let viaChainStep1: RawSignal -> FilteredSignal =
         fun raw ->
@@ -346,18 +357,18 @@ let ``resolveComposed detects conflict when direct registration and chain both p
                 WithinRange = true
             }
 
-    let registry =
-        empty |> register viaChainStep1 |> register viaChainStep2 |> register direct
-
     // Act
     let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> NormalizedSignal> registry |> ignore)
+        Assert.Throws<exn>(fun () ->
+            register viaChainStep1 >> register viaChainStep2 >> register direct
+            |> buildComposed
+            |> ignore)
 
     // Assert
     Assert.Contains("Ambiguous", ex.Message)
 
 [<Fact>]
-let ``resolveComposed fails on ambiguous chain with two paths to same output`` () =
+let ``two composition paths to same output fail at build time`` () =
     // Arrange
     let pathA: RawSignal -> PathAIntermediate =
         fun raw ->
@@ -373,22 +384,18 @@ let ``resolveComposed fails on ambiguous chain with two paths to same output`` (
 
     let finishB: PathBIntermediate -> FinalOutput = fun b -> { Value = b.ViaB }
 
-    let registry =
-        empty
-        |> register pathA
-        |> register pathB
-        |> register finishA
-        |> register finishB
-
     // Act
     let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> FinalOutput> registry |> ignore)
+        Assert.Throws<exn>(fun () ->
+            register pathA >> register pathB >> register finishA >> register finishB
+            |> buildComposed
+            |> ignore)
 
     // Assert
     Assert.Contains("Ambiguous", ex.Message)
 
 [<Fact>]
-let ``resolveComposed fails when partial-application and chain both produce the same dependency`` () =
+let ``partial-application and chain to same dependency fail at build time`` () =
     // Arrange
     let filterStep: RawSignal -> FilteredSignal =
         fun raw ->
@@ -430,23 +437,22 @@ let ``resolveComposed fails when partial-application and chain both produce the 
                 Confidence = 0.9
             }
 
-    let registry =
-        empty
-        |> register filterStep
-        |> register normalizeStep
-        |> register calibratedNormalize
-        |> register getCalibration
-        |> register classify
-
     // Act
     let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> ClassifiedSignal> registry |> ignore)
+        Assert.Throws<exn>(fun () ->
+            register filterStep
+            >> register normalizeStep
+            >> register calibratedNormalize
+            >> register getCalibration
+            >> register classify
+            |> buildComposed
+            |> ignore)
 
     // Assert
     Assert.Contains("Ambiguous", ex.Message)
 
 [<Fact>]
-let ``resolveComposed fails when chained dependency creates ambiguity for a consumer`` () =
+let ``chained dependency that creates ambiguity for a consumer fails at build time`` () =
     // Arrange
     let direct: RawSignal -> FinalOutput =
         fun raw ->
@@ -467,23 +473,19 @@ let ``resolveComposed fails when chained dependency creates ambiguity for a cons
             let (Volts v) = filtered.CleanedReading
             { Value = v }
 
-    let registry =
-        empty |> register direct |> register filterStep |> register finishFromFiltered
-
     // Act
     let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> FinalOutput> registry |> ignore)
+        Assert.Throws<exn>(fun () ->
+            register direct >> register filterStep >> register finishFromFiltered
+            |> buildComposed
+            |> ignore)
 
     // Assert
     Assert.Contains("Ambiguous", ex.Message)
 
 [<Fact>]
-let ``resolveComposed detects cycle when graph contains loop even though direct result exists`` () =
+let ``cycle in composition graph fails at build time`` () =
     // Arrange
-    // filterWithCalibration(calibrate) produces RawSignal -> FilteredSignal
-    // decode >> reconstruct produces FilteredSignal -> RawSignal
-    // Together they form a cycle: RawSignal -> FilteredSignal -> RawSignal
-
     let filterWithCalibration: (int -> NormalizedSignal) -> RawSignal -> FilteredSignal =
         fun _getNorm raw ->
             let (Volts v) = raw.Reading
@@ -512,27 +514,22 @@ let ``resolveComposed detects cycle when graph contains loop even though direct 
                 Timestamp = 0
             }
 
-    let registry =
-        empty
-        |> register filterWithCalibration
-        |> register calibrate
-        |> register decode
-        |> register reconstruct
-
     // Act
     let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> FilteredSignal> registry |> ignore)
+        Assert.Throws<exn>(fun () ->
+            register filterWithCalibration
+            >> register calibrate
+            >> register decode
+            >> register reconstruct
+            |> buildComposed
+            |> ignore)
 
     // Assert
     Assert.Contains("Cycle detected", ex.Message)
 
 [<Fact>]
-let ``resolveComposed detects cycle when chaining feeds back into partial application`` () =
+let ``cycle from chaining back into partial application fails at build time`` () =
     // Arrange
-    // Same cycle as above (RawSignal -> FilteredSignal -> RawSignal)
-    // but requesting RawSignal -> SignalReport which has a valid direct path
-    // The cycle in the graph still makes the configuration invalid
-
     let filterWithCalibration: (int -> NormalizedSignal) -> RawSignal -> FilteredSignal =
         fun _getNorm raw ->
             let (Volts v) = raw.Reading
@@ -567,17 +564,79 @@ let ``resolveComposed detects cycle when chaining feeds back into partial applic
                 Summary = sprintf "Cleaned: %A" filtered.CleanedReading
             }
 
-    let registry =
-        empty
-        |> register filterWithCalibration
-        |> register calibrate
-        |> register decode
-        |> register reconstruct
-        |> register report
-
     // Act
     let ex =
-        Assert.Throws<exn>(fun () -> resolveComposed<RawSignal -> SignalReport> registry |> ignore)
+        Assert.Throws<exn>(fun () ->
+            register filterWithCalibration
+            >> register calibrate
+            >> register decode
+            >> register reconstruct
+            >> register report
+            |> buildComposed
+            |> ignore)
 
     // Assert
     Assert.Contains("Cycle detected", ex.Message)
+
+// ── Resolve fails ───────────────────────────────────────────────────
+
+[<Fact>]
+let ``unreachable signature produces readable error`` () =
+    // Arrange
+    let filter: RawSignal -> FilteredSignal =
+        fun raw ->
+            let (Volts v) = raw.Reading
+
+            {
+                CleanedReading = Volts(v * 0.9)
+                NoiseRemoved = true
+            }
+
+    let graph = register filter |> buildComposed
+
+    // Act
+    let ex =
+        Assert.Throws<exn>(fun () -> resolve<RawSignal -> NormalizedSignal> graph |> ignore)
+
+    // Assert
+    Assert.Contains("Cannot resolve", ex.Message)
+
+[<Fact>]
+let ``unregistered type produces readable error`` () =
+    // Arrange
+    let graph = buildComposed id
+
+    // Act
+    let ex =
+        Assert.Throws<exn>(fun () -> resolve<RawSignal -> NormalizedSignal> graph |> ignore)
+
+    // Assert
+    Assert.Contains("Cannot resolve", ex.Message)
+    Assert.Contains("NormalizedSignal", ex.Message)
+
+[<Fact>]
+let ``missing dependency produces readable diagnostic`` () =
+    // Arrange
+    let assessRisk: (RawSignal -> NormalizedSignal) -> RawSignal -> RiskAssessment =
+        fun _getNorm _raw -> { Level = Low; Description = "" }
+
+    let graph = register assessRisk |> buildComposed
+
+    // Act
+    let ex =
+        Assert.Throws<exn>(fun () -> resolve<RawSignal -> RiskAssessment> graph |> ignore)
+
+    // Assert
+    Assert.Contains("Cannot resolve", ex.Message)
+    Assert.Contains("NormalizedSignal", ex.Message)
+
+[<Fact>]
+let ``empty graph produces readable error`` () =
+    // Arrange
+    let graph = buildComposed id
+
+    // Act
+    let ex = Assert.Throws<exn>(fun () -> resolve<NormalizedSignal> graph |> ignore)
+
+    // Assert
+    Assert.Contains("Cannot resolve", ex.Message)

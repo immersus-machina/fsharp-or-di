@@ -17,13 +17,13 @@ let readTemperature: SensorId -> TemperatureReading = ...
 let readPressure: SensorId -> PressureReading = ...
 let combineSensors: (SensorId -> TemperatureReading) -> (SensorId -> PressureReading) -> SensorId -> CombinedReading = ...
 
-let registry =
-    FunctionRegistry.empty
-    |> FunctionRegistry.register readTemperature
-    |> FunctionRegistry.register readPressure
-    |> FunctionRegistry.register combineSensors
+let graph =
+    FunctionRegistry.register readTemperature
+    >> FunctionRegistry.register readPressure
+    >> FunctionRegistry.register combineSensors
+    |> FunctionRegistry.build
 
-let combined: SensorId -> CombinedReading = FunctionRegistry.resolve registry
+let combined: SensorId -> CombinedReading = FunctionGraph.resolve graph
 ```
 
 `combineSensors` needs a `SensorId -> TemperatureReading` and a `SensorId -> PressureReading`. Well-engineered signatures make the dependency graph explicit — the library resolves the rest.
@@ -56,28 +56,30 @@ let readTemperature: ReadTemperature = fun id -> ...
 let readPressure: ReadPressure = fun id -> ...
 let combineSensors: ReadTemperature -> ReadPressure -> SensorId -> CombinedReading = fun temp press id -> ...
 
-FunctionRegistry.empty
-    |> register readTemperature
-    |> register readPressure
-    |> register combineSensors
+let graph =
+    register readTemperature
+    >> register readPressure
+    >> register combineSensors
+    |> build
 ```
 
 The type alias is the interface. The function is the implementation. The parameters are the constructor.
 
 ## Composition Chaining
 
-Single-argument functions compose automatically with `resolveComposed`:
+Single-argument functions compose automatically when you use `buildComposed`:
 
 ```fsharp
-FunctionRegistry.empty
-    |> register QuantumSplitter.split           // RawQuantumEnergy -> SplitQuantumEnergy
-    |> register CoherentExtractor.extract       // SplitQuantumEnergy -> CoherentEnergy
-    |> register HarmonicTuner.tune              // CoherentEnergy -> HarmonizedEnergy
-    |> register ShieldCalibrator.calibrate      // HarmonizedEnergy -> CalibratedShieldEnergy
+let graph =
+    register QuantumSplitter.split           // RawQuantumEnergy -> SplitQuantumEnergy
+    >> register CoherentExtractor.extract    // SplitQuantumEnergy -> CoherentEnergy
+    >> register HarmonicTuner.tune           // CoherentEnergy -> HarmonizedEnergy
+    >> register ShieldCalibrator.calibrate   // HarmonizedEnergy -> CalibratedShieldEnergy
+    |> buildComposed
 
 // The library chains: split >> extract >> tune >> calibrate
 // Producing: RawQuantumEnergy -> CalibratedShieldEnergy
-let shieldEnergy: RawQuantumEnergy -> CalibratedShieldEnergy = FunctionRegistry.resolveComposed registry
+let shieldEnergy: RawQuantumEnergy -> CalibratedShieldEnergy = resolve graph
 ```
 
 No manual `>>` composition needed. Register the building blocks, request the result type, the library figures out the chain. See the [KeplerStation](examples/KeplerStation/) example for a full-scale demonstration.
@@ -98,11 +100,9 @@ Benchmarks on the [KeplerStation](examples/KeplerStation) example (66 registered
 
 | Operation | Mean | Allocated |
 | --- | --- | --- |
-| Register 66 functions | 1.4 ms | 561 KB |
-| Resolve (build graph) | 12.7 ms | 13 MB |
-| Full pipeline (register + resolve + invoke) | 14.6 ms | 13.7 MB |
+| `buildComposed` (66 functions) | 14.7 ms | 13.7 MB |
 
-Resolution is a startup cost — it happens once. The returned function runs at full speed with no reflection on the call path. See [benchmark/](benchmark/) to reproduce.
+Building the graph is a startup cost — it happens once. `resolve` is a Map lookup. The resolved function is a standard F# function — no wrapping, no proxying, no reflection on the call path. See [benchmark/](benchmark/) to reproduce.
 
 ## Motivation
 
@@ -135,7 +135,7 @@ This is the same discipline the Scala community learned: registering `given (Int
 
 A dependency graph isn't arbitrary — it's a deliberate expression of your domain architecture. The type signatures you choose define which functions connect, which subsystems depend on each other, and how data flows through the system. That's engineering, not convention.
 
-The library takes this seriously. When you call `resolve` or `resolveComposed`, the graph is built and validated before anything runs:
+The library takes this seriously. When you call `build` or `buildComposed`, the graph is expanded and validated:
 
 - **Duplicate registrations** are rejected immediately — one signature, one provider
 - **Ambiguous derivations** throw — if two paths produce the same type, the design is unclear

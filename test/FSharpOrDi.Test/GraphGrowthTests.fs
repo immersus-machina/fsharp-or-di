@@ -1,10 +1,10 @@
-module FSharpOrDi.Test.FunctionGraphTests
+module FSharpOrDi.Test.GraphGrowthTests
 
 open Xunit
 open FSharpOrDi.TypeSignature
 open FSharpOrDi.ResolutionGraph
 open FSharpOrDi.GrowthPlan
-open FSharpOrDi.FunctionGraph
+open FSharpOrDi.GraphGrowth
 
 let private signatureA = ValueType typeof<int>
 let private signatureB = ValueType typeof<string>

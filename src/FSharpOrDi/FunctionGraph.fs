@@ -1,35 +1,19 @@
-module internal FSharpOrDi.FunctionGraph
+module FSharpOrDi.FunctionGraph
 
-open ResolutionGraph
-open GrowthPlan
+/// A resolved function graph built from registered functions.
+type Graph = private Graph of ResolutionGraph.Stage
 
-let growFromRegistrations
-    (growthPlans: GrowthPlan list)
-    (stageValidator: Stage -> Result<unit, string>)
-    (filterCandidateAgainstExistingStage: Stage -> Node -> Node option)
-    (deduplicateBatch: Node list -> Node list)
-    (registrationStage: Stage)
-    : Stage =
+let internal fromStage (stage: ResolutionGraph.Stage) : Graph = Graph stage
 
-    let rec growUntilStable (question: GrowthQuestion) : Stage =
-        match stageValidator question.CurrentStage with
-        | Error message -> failwith message
-        | Ok() ->
-            let acceptedNodes =
-                growthPlans
-                |> List.collect (fun plan -> plan question)
-                |> List.choose (filterCandidateAgainstExistingStage question.CurrentStage)
-                |> deduplicateBatch
+/// Resolves a function by System.Type from the built graph.
+let resolveByType (targetType: System.Type) (graph: Graph) : obj =
+    let (Graph stage) = graph
+    let targetSignature = CompositionRoot.decomposeType targetType
 
-            if List.isEmpty acceptedNodes then
-                // Safe to return: current stage was validated at the start of this iteration
-                question.CurrentStage
-            else
-                let nextStage =
-                    acceptedNodes
-                    |> List.fold (fun stageAccumulator node -> addNode node stageAccumulator) question.CurrentStage
+    match ResolutionGraph.tryFindNode targetSignature stage with
+    | Some node -> node.Implementation
+    | None -> failwith (CompositionRoot.describeMissingDependencies targetSignature stage)
 
-                growUntilStable { NewNodes = acceptedNodes; CurrentStage = nextStage }
-
-    let initialNodes = allNodes registrationStage
-    growUntilStable { NewNodes = initialNodes; CurrentStage = registrationStage }
+/// Resolves a function by type parameter from the built graph.
+let inline resolve<'a> (graph: Graph) : 'a =
+    resolveByType typeof<'a> graph :?> 'a

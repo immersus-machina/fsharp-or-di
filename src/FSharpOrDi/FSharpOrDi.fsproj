@@ -44,6 +44,8 @@
     <Compile Include="RuntimeInvocation.fs" />
     <Compile Include="GrowthPlan.fs" />
     <Compile Include="CycleDetection.fs" />
+    <Compile Include="GraphGrowth.fs" />
+    <Compile Include="CompositionRoot.fs" />
     <Compile Include="FunctionGraph.fs" />
     <Compile Include="FunctionRegistry.fs" />
   </ItemGroup>
