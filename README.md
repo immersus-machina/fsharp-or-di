@@ -10,6 +10,8 @@ Requires .NET 10+.
 dotnet add package FSharpOrDi
 ```
 
+For binding `IConfigurationSection` to F# records, see [FSharpOrDi.Configuration](src/FSharpOrDi.Configuration/README.md).
+
 ## Quick Start
 
 ```fsharp

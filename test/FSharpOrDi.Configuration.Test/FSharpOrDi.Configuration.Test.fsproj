@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="TestReaders.fs" />
+    <Compile Include="TypeClassificationTests.fs" />
+    <Compile Include="ValueConversionTests.fs" />
+    <Compile Include="RecordBindingTests.fs" />
+    <Compile Include="SingleCaseUnionBindingTests.fs" />
+    <Compile Include="OptionBindingTests.fs" />
+    <Compile Include="CollectionBindingTests.fs" />
+    <Compile Include="SectionBinderTests.fs" />
+    <Compile Include="BindingErrorFormattingTests.fs" />
+    <Compile Include="ConfigurationBindingIntegrationTests.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FSharpOrDi\FSharpOrDi.fsproj" />
+    <ProjectReference Include="..\..\src\FSharpOrDi.Configuration\FSharpOrDi.Configuration.fsproj" />
+  </ItemGroup>
+
+</Project>

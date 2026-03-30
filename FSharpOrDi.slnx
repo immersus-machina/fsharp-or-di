@@ -4,5 +4,7 @@
   <Project Path="examples/KeplerStation/KeplerStation.fsproj" />
   <Project Path="examples/OpticalContract/OpticalContract.fsproj" />
   <Project Path="src/FSharpOrDi/FSharpOrDi.fsproj" />
+  <Project Path="src/FSharpOrDi.Configuration/FSharpOrDi.Configuration.fsproj" />
   <Project Path="test/FSharpOrDi.Test/FSharpOrDi.Test.fsproj" />
+  <Project Path="test/FSharpOrDi.Configuration.Test/FSharpOrDi.Configuration.Test.fsproj" />
 </Solution>
