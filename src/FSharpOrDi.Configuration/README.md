@@ -1,6 +1,8 @@
 # FSharpOrDi.Configuration
 
-Binds `IConfigurationSection` to F# record types with error accumulation. Designed to integrate with [FSharpOrDi](../../README.md) — register configuration values directly into the function registry.
+Binds `IConfigurationSection` to F# record types with error accumulation.
+
+Optionally integrates with [FSharpOrDi](https://github.com/immersus-machina/fsharp-or-di) — register configuration values directly into the function registry.
 
 ## Installation
 
@@ -28,19 +30,19 @@ type DatabaseConfiguration =
 ### Bind to a Result
 
 ```fsharp
-open FSharpOrDi.Configuration.ConfigurationBinding
+open FSharpOrDi.Configuration
 
 let result: Result<DatabaseConfiguration, BindingError list> =
-    configuration.GetSection("Database") |> bind<DatabaseConfiguration>
+    configuration.GetSection("Database") |> ConfigurationBinding.bind<DatabaseConfiguration>
 ```
 
 ### Register directly into FSharpOrDi
 
 ```fsharp
-open FSharpOrDi.Configuration.ConfigurationBinding
+open FSharpOrDi.Configuration
 
 let graph =
-    registerBind<DatabaseConfiguration> (configuration.GetSection("Database"))
+    ConfigurationBinding.registerBind<DatabaseConfiguration> (configuration.GetSection("Database"))
     |> FunctionRegistry.build
 ```
 
@@ -72,12 +74,20 @@ type BindingError =
 Format errors for display:
 
 ```fsharp
-open FSharpOrDi.Configuration.BindingErrorFormatting
+open FSharpOrDi.Configuration
 
 match result with
 | Ok config -> // use config
-| Error errors -> printfn "%s" (formatErrors errors)
+| Error errors -> printfn "%s" (BindingErrorFormatting.formatErrors errors)
 // Configuration binding failed:
 // - Missing required value: 'Host'
 // - Cannot convert 'abc' to Int32 for field 'Port'
 ```
+
+## Examples
+
+The [ConfigurationBinding](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/ConfigurationBinding/Program.fs) example includes:
+
+- Binding sections to records with primitives, single-case DUs, options, lists, and arrays
+- Error accumulation for missing or invalid fields
+- Registering configuration into [FSharpOrDi](https://github.com/immersus-machina/fsharp-or-di) with startup [validation](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/ConfigurationBinding/Validation.fs)
