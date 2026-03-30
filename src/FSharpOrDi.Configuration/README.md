@@ -6,10 +6,9 @@ Optionally integrates with [FSharpOrDi](https://github.com/immersus-machina/fsha
 
 ## Installation
 
-ToDo
-<!-- ```bash
+```bash
 dotnet add package FSharpOrDi.Configuration
-``` -->
+```
 
 ## Usage
 
