@@ -28,11 +28,17 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release -p:Version=${{ steps.version.outputs.VERSION }}
 
-      - name: Test
+      - name: Test FSharpOrDi
         run: dotnet run --project test/FSharpOrDi.Test/FSharpOrDi.Test.fsproj --no-build -c Release
 
-      - name: Pack
+      - name: Test FSharpOrDi.Configuration
+        run: dotnet run --project test/FSharpOrDi.Configuration.Test/FSharpOrDi.Configuration.Test.fsproj --no-build -c Release
+
+      - name: Pack FSharpOrDi
         run: dotnet pack src/FSharpOrDi/FSharpOrDi.fsproj --no-build -c Release -p:Version=${{ steps.version.outputs.VERSION }} -o ./artifacts
+
+      - name: Pack FSharpOrDi.Configuration
+        run: dotnet pack src/FSharpOrDi.Configuration/FSharpOrDi.Configuration.fsproj --no-build -c Release -p:Version=${{ steps.version.outputs.VERSION }} -o ./artifacts
 
       - name: Push to NuGet
         run: |

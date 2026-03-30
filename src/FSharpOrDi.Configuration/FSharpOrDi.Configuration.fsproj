@@ -2,7 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+
+    <PackageId>FSharpOrDi.Configuration</PackageId>
+    <Authors>fsharp-or-di contributors</Authors>
+    <Description>Bind IConfigurationSection to F# records with error accumulation. Supports primitives, single-case DUs, options, lists, and arrays. Optionally integrates with FSharpOrDi.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/immersus-machina/fsharp-or-di/blob/main/src/FSharpOrDi.Configuration/README.md</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/immersus-machina/fsharp-or-di.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>fsharp;dotnet;configuration;binding;iconfiguration;records;options</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,8 +25,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="10.0.100" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
     <ProjectReference Include="..\FSharpOrDi\FSharpOrDi.fsproj" PrivateAssets="all" />
   </ItemGroup>
 
