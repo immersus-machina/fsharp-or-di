@@ -160,3 +160,7 @@ The graph either resolves cleanly or tells you exactly what's wrong. No silent f
 - **IDE support matches the usage pattern.** Direct registrations have full "go to definition" support — same as C# interfaces. Synthesized functions (derived via partial application or composition chaining) don't have a declaration site to navigate to. Scala doesn't synthesize functions either — its `given`/`using` only resolves explicitly declared instances.
 - **Type aliases are documentation, not enforcement.** `type Refract = Specimen -> RefractedSpecimen` is a naming convenience — at the .NET level, it's the same type as any other `Specimen -> RefractedSpecimen`. The compiler won't catch a mislabeled alias.
 - **No generic type support.** The library resolves by exact type match. You can't register a generic function and have it resolve for specific type instantiations.
+
+---
+
+Built by [Immersus Machina](https://www.immersus-machina.com)

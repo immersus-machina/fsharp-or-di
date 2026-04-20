@@ -90,3 +90,7 @@ The [ConfigurationBinding](https://github.com/immersus-machina/fsharp-or-di/blob
 - Binding sections to records with primitives, single-case DUs, options, lists, and arrays
 - Error accumulation for missing or invalid fields
 - Registering configuration into [FSharpOrDi](https://github.com/immersus-machina/fsharp-or-di) with startup [validation](https://github.com/immersus-machina/fsharp-or-di/blob/main/examples/ConfigurationBinding/Validation.fs)
+
+---
+
+Built by [Immersus Machina](https://www.immersus-machina.com)
